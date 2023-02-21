@@ -6,7 +6,7 @@
 #    By: hyoh <hyoh@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/02/13 09:56:38 by hyoh              #+#    #+#              #
-#    Updated: 2023/02/13 09:59:14 by hyoh             ###   ########.fr        #
+#    Updated: 2023/02/17 10:56:45 by hyoh             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,8 +18,8 @@ RM		=	rm -f
 
 SRCS_DIR	=	./src
 
-SRC		=	philo.c	utils.c
-SRC_BN	=	philo.c	utils.c
+SRC		=	philo.c	utils.c	before_routine.c
+SRC_BN	=	philo.c	utils.c	before_routine.c
 
 OBJ		=	$(addprefix $(SRCS_DIR)/, $(SRC:.c=.o))
 OBJ_BN	=	$(addprefix $(SRCS_DIR)/, $(SRC_BN:.c=.o))

@@ -6,77 +6,145 @@
 /*   By: hyoh <hyoh@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/06 12:19:12 by hyoh              #+#    #+#             */
-/*   Updated: 2023/02/16 09:48:21 by hyoh             ###   ########.fr       */
+/*   Updated: 2023/02/21 10:59:47 by hyoh             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	ft_atoi(char *str)
-{
-	int	num; // unint?
+// us -> ms -> s
 
-	if (str == NULL)
-		return (-1);
-	num = 0;
-	while (*str)
+unsigned int diff(t_time old, t_time new)
+{
+	unsigned int oldms;
+	unsigned int newms;
+
+	oldms = old.tv_sec * 1000 + old.tv_usec / 1000;
+	newms = new.tv_sec * 1000 + new.tv_usec / 1000;
+	return (newms - oldms);
+}
+
+int cur_time(t_philo *philo)
+{
+	t_time	cur;
+
+	gettimeofday(&cur, NULL);
+	return (diff(philo->info->start_time, cur));
+}
+
+int	get_rest_time(t_philo *philo)
+{
+	t_time	cur;
+	int		passed;
+
+	gettimeofday(&cur, NULL);
+	passed = diff(philo->time, cur);
+	return (philo->info->argu[TIME_TO_DIE] - passed);
+}
+
+// int	ft_usleep(t_philo *philo, int wait)
+// {
+// 	int	goal;
+
+// 	t_time tmp1;
+// 	gettimeofday(&tmp1, NULL);
+// 	goal = cur_time(philo) + wait;
+// 	while(goal > cur_time(philo))
+// 	{
+// 		if (get_rest_time(philo) <= 0)
+// 		{
+// 			print_action(DYING, philo);
+// 			philo->info->share_status = DEAD;
+// 			return (-1);
+// 		}
+// 		print_action(USLEEP, philo);
+// 	}
+// 	t_time tmp2;
+// 	gettimeofday(&tmp2, NULL);
+// 	printf("	%d [%d] ft_usleep for %d (goal was %d))\n", cur_time(philo), philo->id, diff(tmp1, tmp2), goal);
+// 	return (0);
+// }
+
+long long	get_time(void)
+{
+	struct timeval	now;
+
+	gettimeofday(&now, NULL);
+	return (now.tv_sec * 1000 + now.tv_usec / 1000);
+}
+
+/* Same as usleep but more precise with big numbers */
+int	ft_usleep(t_philo *philo, long long wait)
+{
+	long long	start;
+
+	start = get_time();
+	while (get_time() < start + wait)
 	{
-		if (*str - '0' < 0 || *str - '0' > 9)
+		if (get_rest_time(philo) <= 0)
+		{
+			print_action(DYING, philo);
+			philo->info->share_status = DEAD;
 			return (-1);
-		num = 10 * num + (*str - '0');
-		str++;
+		}
+		usleep(10);
 	}
-	return (num);
+	return (0);
+}
+
+int ms(t_time time)
+{
+	return (time.tv_sec * 1000 + time.tv_usec / 1000);
 }
 
 void	print_action(int action, t_philo *philo)
 {
-	t_time	cur_time;
-	int		now;
+	t_time tmp;
 	int		rest_time;
 
-	gettimeofday(&cur_time, NULL);
-	now = cur_time.tv_usec / 1000;
-	rest_time = philo->info->argu[TIME_TO_DIE] - get_time_diff(philo);
-	int rest_eat = philo->rest_num;
-
+	gettimeofday(&tmp, NULL);
+	rest_time = get_rest_time(philo);
 	if (action == TAKING_FORK)
-		printf("%d [%d] has taken a fork <%d> (%d)\n", now, philo->id, rest_time, rest_eat);
+	{
+		printf("%d [%d] taken forks <%d>\n", cur_time(philo), philo->id, rest_time);
+		// printf("now status: %d %d %d %d\n", philo->info->fork[1].status, philo->info->fork[2].status, philo->info->fork[3].status, philo->info->fork[4].status);
+	}
 	else if (action == EATING)
-		printf("%d [%d] is eating <%d> (%d)\n", now, philo->id, rest_time, rest_eat);
+		printf("%d [%d] is eating <%d> (rest num: %d)---------\n", cur_time(philo), philo->id, rest_time, philo->rest_num);
 	else if (action == SLEEPING)
-		printf("%d [%d] is sleeping <%d> (%d)\n", now, philo->id, rest_time, rest_eat);
+		printf("%d [%d] is sleeping <%d>\n", cur_time(philo), philo->id, rest_time);
 	else if (action == THINKING)
-		printf("%d [%d] is thinking <%d> (%d)\n", now, philo->id, rest_time, rest_eat);
+		printf("%d [%d] is thinking <%d>\n", cur_time(philo), philo->id, rest_time);
 	else if (action == DYING)
-		printf("%d [%d] died <%d> (%d)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", now, philo->id, rest_time, rest_eat);
-}
-
-int	get_time_diff(t_philo *philo)
-{
-	t_time	cur;
-	int		diff;
-
-	gettimeofday(&cur, NULL);
-	diff = (cur.tv_sec - philo->time.tv_sec) * 1000\
-		 + ((cur.tv_usec - philo->time.tv_usec ) / 1000);
-	// printf("diff: %d\n", diff);
-	return (diff);
+		printf("%d [%d] died <%d>\n", cur_time(philo), philo->id, rest_time);
+	else if (action == READY_FORK)
+		printf("%d [%d] is ready for forks!!\n", cur_time(philo), philo->id);
+	else if (action == DONE_EAT)
+		printf("%d [%d] finished eating\n", cur_time(philo), philo->id);
+	else if (action == DONE_SLEEP)
+		printf("%d [%d] finished sleeping\n", cur_time(philo), philo->id);
+	else if (action == WAITING_FORK)
+		printf("%d [%d] is waiting fork\n", cur_time(philo), philo->id);
+	else
+		printf("print_action error ! !\n");
 }
 
 void	status_monitoring(t_info *info, t_philo *philo)
 {
 	int	flag;
+	t_time	cur;
 
-	// (void)philo;
+	(void)philo;
 	while (1)
 	{
 		// when someone died
 		if (info->share_status == DEAD)
 		{
-			printf("--- someone died ---\n");
+			gettimeofday(&cur, NULL);
+			printf("%d --- someone died ---\n", diff(info->start_time, cur));
 			return ;
 		}
+		// usleep(100); // 함수 끝으로 보내면 share status 변경 확인을 늦게 함.....
 
 		// when everyone ate min
 		if (info->argu[MIN_TO_EAT] == -1)
@@ -84,59 +152,14 @@ void	status_monitoring(t_info *info, t_philo *philo)
 		flag = 0;
 		for (int i = 1; i <= info->argu[NUMBER_OF_PHILOS]; i++)
 		{
-			if (philo[i].rest_num != 0)
+			if (philo[i].rest_num > 0) // 다 안먹은사람
 				flag = 1;
 		}
 		if (flag == 0)
 		{
-			printf("--- everyone lived ---\n");
+			gettimeofday(&cur, NULL);
+			printf("%d --- everyone lived ---\n", diff(info->start_time, cur));
 			return ;
 		}
 	}
-}
-
-int	init_vars(t_info *info, t_philo **philo, pthread_t **pthread)
-{
-	int	i;
-
-	info->fork = (t_fork *)malloc \
-		(sizeof(t_fork) * (info->argu[NUMBER_OF_PHILOS] + 1));
-	*philo = (t_philo *)malloc \
-		(sizeof(t_philo) * (info->argu[NUMBER_OF_PHILOS] + 1));
-	*pthread = (pthread_t *)malloc \
-		(sizeof(pthread_t) * (info->argu[NUMBER_OF_PHILOS] + 1));
-	if (info->fork == NULL || philo == NULL || pthread == NULL) // 맞나?
-		return (-1);
-
-	info->share_status = 0;
-	i = 0;
-	while (++i <= info->argu[NUMBER_OF_PHILOS]) // from 1
-	{
-		// fork
-		info->fork[i].status = UNLOCK;
-		if (i != info->argu[NUMBER_OF_PHILOS] && \
-			pthread_mutex_init(&(info->fork[i]).mutex, NULL) == -1)
-				return (-1);
-		// philo
-		(*philo)[i].id = i;
-		(*philo)[i].rest_num = info->argu[MIN_TO_EAT];
-		(*philo)[i].info = info;
-	}
-	return (0);
-}
-
-int	argv_check(int argc, char **argv, int argu[5])
-{
-	int	i;
-
-	i = -1;
-	while (++i < argc - 1)
-	{
-		argu[i] = ft_atoi(argv[i + 1]);
-		if (argu[i] == -1)
-			return (-1);
-	}
-	if (argc == 5)
-		argu[MIN_TO_EAT] = -1;
-	return (0);
 }

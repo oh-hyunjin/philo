@@ -6,7 +6,7 @@
 /*   By: hyoh <hyoh@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/06 11:50:35 by hyoh              #+#    #+#             */
-/*   Updated: 2023/02/16 09:48:25 by hyoh             ###   ########.fr       */
+/*   Updated: 2023/02/21 10:41:41 by hyoh             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,15 +29,20 @@ typedef struct timeval t_time; // norm????
 #define SLEEPING 2
 #define THINKING 3
 #define DYING 4
+#define READY_FORK 5
+#define WAITING_FORK 6
+#define DONE_EAT 7
+#define DONE_SLEEP 8
+#define USLEEP 9
 
 // fork status
 #define UNLOCK 0
 #define LOCK 1
-#define NOTEXIST 2
 
 // share philo status
-#define ALIVE 0
-#define DEAD 1
+#define READY 0
+#define ALIVE -1
+#define DEAD -2
 
 typedef struct s_fork
 {
@@ -68,9 +73,14 @@ typedef struct s_philo // routine 넘길 구조체 배열
 
 
 // utils
-int		ft_atoi(char *str);
-int		argv_check(int argc, char **argv, int argu[5]);
 void	print_action(int action, t_philo *philo);
-int		get_time_diff(t_philo *philo);
+int		get_rest_time(t_philo *philo);
 void	status_monitoring(t_info *info, t_philo *philo);
-int		init_vars(t_info *info, t_philo **philo, pthread_t **pthread);
+int		ft_usleep(t_philo *philo, long long wait);
+unsigned int diff(t_time old, t_time new);
+int cur_time(t_philo *philo);
+
+// before routine
+int	argv_check(int argc, char **argv, int argu[5]);
+int	ft_atoi(char *str);
+int	init_vars(t_info *info, t_philo **philo, pthread_t **pthread);

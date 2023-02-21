@@ -6,7 +6,7 @@
 /*   By: hyoh <hyoh@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/06 11:17:50 by hyoh              #+#    #+#             */
-/*   Updated: 2023/02/16 10:32:46 by hyoh             ###   ########.fr       */
+/*   Updated: 2023/02/21 11:27:17 by hyoh             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,23 +18,35 @@ int	getting_fork(t_philo *philo, t_info *info, int *fst, int *snd)
 	*snd = philo->id + 1;
 	if (philo->id == info->argu[NUMBER_OF_PHILOS]) // 총 한명일 때, 마지막 num일 때
 		*snd = 1;
+	printf("%d [%d] is waiting fork (<%d>:%d, <%d>:%d)\n", cur_time(philo), philo->id, \
+						*fst, info->fork[*fst].status, *snd, info->fork[*snd].status);
 	while (1)
 	{ // freeze 되기 전에 lock or unlock 판별
 		if (*fst != *snd && info->fork[*fst].status == UNLOCK \
 				&& info->fork[*snd].status == UNLOCK)
+		{
+			info->fork[*fst].status++;
+			info->fork[*snd].status++;
+			print_action(READY_FORK, philo);
 			break ;
-		if (info->argu[TIME_TO_DIE] < get_time_diff(philo))
+		}
+		if(get_rest_time(philo) < 0) //=은 안붙이나?
 		{
 			print_action(DYING, philo);
+			printf("	was waiting for forks (<%d>:%d, <%d>:%d)\n", \
+						*fst, info->fork[*fst].status, *snd, info->fork[*snd].status);
 			info->share_status = DEAD;
-			printf("	was waiting for fork\n");
 			return (-1);
 		}
 	}
-	pthread_mutex_lock(&info->fork[*fst].mutex);
-	pthread_mutex_lock(&info->fork[*snd].mutex);
-	info->fork[*fst].status = LOCK;
-	info->fork[*snd].status = LOCK;
+	if (info->fork[*fst].status >= 2)
+		printf("fork [%d]trouble!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", *fst);
+	if (info->fork[*snd].status >= 2)
+		printf("fork [%d]trouble!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", *snd);
+	if(pthread_mutex_lock(&info->fork[*fst].mutex) != 0)
+		printf("mutex error!!!!!!!!!!!!!!!!! fork : %d\n", *fst);
+	if (pthread_mutex_lock(&info->fork[*snd].mutex) != 0)
+		printf("mutex error!!!!!!!!!!!!!!!!! fork : %d\n", *snd);
 	print_action(TAKING_FORK, philo);
 	return (0);
 }
@@ -46,25 +58,19 @@ void	eating(t_philo *philo, t_info *info)
 
 	if (info->share_status == DEAD)
 		return ;
-
 	if (getting_fork(philo, info, &fst, &snd) == -1)
 		return ;
 
 	// start eating
+	philo->rest_num--;
 	gettimeofday(&philo->time, NULL);
 	print_action(EATING, philo);
-	usleep(info->argu[TIME_TO_EAT] * 1000);
+	if (philo->rest_num == 0)
+		printf("  %d satisfied must eat num~~~~~~~~~~~~~~~~~~~\n", philo->id);
+	ft_usleep(philo, info->argu[TIME_TO_EAT]);
+	print_action(DONE_EAT, philo);
 
 	// finish eating
-	philo->rest_num--;
-	if (philo->rest_num == 0)
-		printf("  %d done eating~~~~~~~~~~~~~~~~~~~~~~~\n", philo->id);
-	if (info->argu[TIME_TO_DIE] < get_time_diff(philo))
-	{
-		print_action(DYING, philo);
-		info->share_status = DEAD;
-		printf("	was eating\n");
-	}
 	pthread_mutex_unlock(&info->fork[snd].mutex);
 	pthread_mutex_unlock(&info->fork[fst].mutex);
 	info->fork[snd].status = UNLOCK;
@@ -76,23 +82,8 @@ void	sleeping(t_philo *philo)
 	if (philo->info->share_status == DEAD)
 		return ;
 	print_action(SLEEPING, philo);
-
-	usleep(philo->info->argu[TIME_TO_SLEEP] * 1000);
-	if (philo->info->argu[TIME_TO_DIE] < get_time_diff(philo))
-	{
-		print_action(DYING, philo);
-		philo->info->share_status = DEAD;
-		printf("	was sleeping\n");
-	}
-	// for (int i = 0; i < philo->argu[TIME_TO_SLEEP]; i++)
-	// {
-	// 	usleep(1000);
-	// 	if (philo->argu[TIME_TO_DIE] < get_time_diff(philo))
-	// 	{
-	// 		print_action(DYING, philo);
-	// 		*philo->share = 1;
-	// 	}
-	// }
+	ft_usleep(philo, philo->info->argu[TIME_TO_SLEEP]);
+	print_action(DONE_SLEEP, philo);
 }
 
 void	thinking(t_philo *philo)
@@ -107,14 +98,19 @@ void	*routine(void *param)
 	t_philo	*philo;
 
 	philo = (t_philo *)param;
+	printf("%d is in routine!!!\n", philo->id);
+	philo->info->share_status ++;
+	while (philo->info->share_status != ALIVE)
+		gettimeofday(&philo->time, NULL);
 	gettimeofday(&philo->time, NULL);
-	printf("%d is in routine\n", philo->id);
+	if (philo->id %2 == 0)
+		ft_usleep(philo, 200);
 	while (philo->info->share_status == ALIVE)
 	{
 		eating(philo, philo->info);
 		sleeping(philo);
 		thinking(philo);
-		usleep(100); //
+		// ft_usleep(philo, 200);
 	}
 	return (0);
 }
@@ -130,23 +126,35 @@ int	main(int argc, char **argv)
 	 init_vars(&info, &philo, &pthread) == -1)
 	{
 		printf("error\n");
-		// free philo, fork
-		return (1);
+		return (1); // free philo, fork
 	}
-	gettimeofday(&info.start_time, NULL);
+	for (int i = 0; i < 5; i++)
+		printf("[%d]", info.argu[i]);
+	printf("\n");
 	
 	i = 0;
 	while (++i <= info.argu[NUMBER_OF_PHILOS])
 	{
 		if (pthread_create(&pthread[i], NULL, routine, &philo[i]) != 0)
-			printf("<%d> create fail\n", i);
-		
-		pthread_detach(pthread[i]); // 스레드 끝날 때까지 기다림
+			printf("<%d> create fail\n", i); // fail 경우 detach?
 	}
-
+	while (1)
+	{
+		if (info.share_status == info.argu[NUMBER_OF_PHILOS])
+		{
+			printf("all thread is in routine!!!!!!!!!!!!!!!!!!!\n");
+			info.share_status = ALIVE;
+			gettimeofday(&info.start_time, NULL);
+			break ;
+		}
+	}
 	status_monitoring(&info, philo);
-	i = 0;
-	while (++i <= info.argu[NUMBER_OF_PHILOS])
-		pthread_join(pthread[i], NULL); // 바로 종료
+	printf("will detach!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+	for (int i = 1; i <= info.argu[NUMBER_OF_PHILOS]; i++)
+	{
+		if (pthread_detach(pthread[i]) != 0) // 바로 종료
+			printf("----%d detaching fail----\n", i);
+	}
+	printf("detach all success\n");
 	// double_free();
 }
