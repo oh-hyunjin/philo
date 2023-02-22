@@ -6,7 +6,7 @@
 /*   By: hyoh <hyoh@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/06 11:50:35 by hyoh              #+#    #+#             */
-/*   Updated: 2023/02/21 10:41:41 by hyoh             ###   ########.fr       */
+/*   Updated: 2023/02/21 12:30:48 by hyoh             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,9 +76,9 @@ typedef struct s_philo // routine 넘길 구조체 배열
 void	print_action(int action, t_philo *philo);
 int		get_rest_time(t_philo *philo);
 void	status_monitoring(t_info *info, t_philo *philo);
-int		ft_usleep(t_philo *philo, long long wait);
-unsigned int diff(t_time old, t_time new);
-int cur_time(t_philo *philo);
+int		ft_usleep(t_philo *philo, int wait);
+int		diff(t_time old, t_time new);
+int		cur_time(t_philo *philo);
 
 // before routine
 int	argv_check(int argc, char **argv, int argu[5]);

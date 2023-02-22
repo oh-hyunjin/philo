@@ -6,7 +6,7 @@
 /*   By: hyoh <hyoh@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/17 10:52:14 by hyoh              #+#    #+#             */
-/*   Updated: 2023/02/20 11:41:57 by hyoh             ###   ########.fr       */
+/*   Updated: 2023/02/22 10:47:29 by hyoh             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,10 +58,12 @@ int	ft_atoi(char *str)
 	return (num);
 }
 
-int	argv_check(int argc, char **argv, int argu[5])
+int	argv_check(int argc, char **argv, int *argu)
 {
 	int	i;
 
+	if (argc != 5 && argc != 6)
+		return (-1);
 	i = -1;
 	while (++i < argc - 1)
 	{
@@ -69,7 +71,12 @@ int	argv_check(int argc, char **argv, int argu[5])
 		if (argu[i] == -1)
 			return (-1);
 	}
-	if (argc == 5)
-		argu[MIN_TO_EAT] = -1;
+	argu[MIN_TO_EAT] = -1;
+	if (argc == 6)
+	{
+		argu[MIN_TO_EAT] = ft_atoi(argv[i]);
+		if (argu[MIN_TO_EAT] == -1)
+			return (-1);
+	}
 	return (0);
 }
