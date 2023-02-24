@@ -6,7 +6,7 @@
 /*   By: hyoh <hyoh@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/06 11:17:50 by hyoh              #+#    #+#             */
-/*   Updated: 2023/02/22 13:00:55 by hyoh             ###   ########.fr       */
+/*   Updated: 2023/02/24 09:25:42 by hyoh             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,16 +21,18 @@ int	getting_fork(t_philo *philo, t_info *info, int *fst, int *snd)
 	// 홀 : fst먼저
 	if (philo->id % 2 == 1)
 	{
-		pthread_mutex_lock(&info->fork[*fst].mutex);
-		pthread_mutex_lock(&info->fork[*snd].mutex);
+		pthread_mutex_lock(&info->fork[*fst]);
+		pthread_mutex_lock(&info->fork[*snd]);
 	}
 	else
 	{
-		pthread_mutex_lock(&info->fork[*snd].mutex);
-		pthread_mutex_lock(&info->fork[*fst].mutex);
+		pthread_mutex_lock(&info->fork[*snd]);
+		pthread_mutex_lock(&info->fork[*fst]);
 	}
-
+	if (is_dead(philo) == 1) // unlock?
+		return (-1);
 	print_action(TAKING_FORK, philo);
+	// printf("	(in gettinf_fork) [%d] rest:%d, cur:%d\n", philo->id, get_rest_time(philo), get_cur_time(philo));
 	return (0);
 }
 
@@ -39,7 +41,7 @@ void	eating(t_philo *philo, t_info *info)
 	int	fst;
 	int	snd;
 
-	if (info->share_status == DEAD)
+	if (is_dead(philo) == 1)
 		return ;
 	if (getting_fork(philo, info, &fst, &snd) == -1)
 		return ;
@@ -56,22 +58,19 @@ void	eating(t_philo *philo, t_info *info)
 	// finish eating
 	if (philo->id % 2 == 1)
 	{
-		pthread_mutex_unlock(&info->fork[snd].mutex);
-		pthread_mutex_unlock(&info->fork[fst].mutex);
+		pthread_mutex_unlock(&info->fork[snd]);
+		pthread_mutex_unlock(&info->fork[fst]);
 	}
 	else
 	{
-		pthread_mutex_unlock(&info->fork[fst].mutex);
-		pthread_mutex_unlock(&info->fork[snd].mutex);
+		pthread_mutex_unlock(&info->fork[fst]);
+		pthread_mutex_unlock(&info->fork[snd]);
 	}
-	
-	info->fork[snd].status = UNLOCK;
-	info->fork[fst].status = UNLOCK;
 }
 
 void	sleeping(t_philo *philo)
 {
-	if (philo->info->share_status == DEAD)
+	if (is_dead(philo) == 1)
 		return ;
 	print_action(SLEEPING, philo);
 	ft_usleep(philo, philo->info->argu[TIME_TO_SLEEP]);
@@ -80,7 +79,7 @@ void	sleeping(t_philo *philo)
 
 void	thinking(t_philo *philo)
 {
-	if (philo->info->share_status == DEAD)
+	if (is_dead(philo) == 1)
 		return ;
 	print_action(THINKING, philo);
 }
@@ -96,12 +95,12 @@ void	*routine(void *param)
 	gettimeofday(&philo->time, NULL);
 	if (philo->id %2 == 0)
 		usleep(50);
-	while (philo->info->share_status == ALIVE)
+	while (is_dead(philo) == 0)
 	{
 		eating(philo, philo->info);
 		sleeping(philo);
 		thinking(philo);
-		usleep(50);
+		usleep(80);
 	}
 	return (0);
 }
@@ -113,7 +112,7 @@ int	main(int argc, char **argv)
 	pthread_t	*pthread;
 	int			i;
 
-	if (argv_check(argc, argv, info.argu) == -1 ||\
+	if (argv_check(argc, argv, info.argu) == -1 ||
 	 init_vars(&info, &philo, &pthread) == -1)
 	{
 		printf("error\n");
@@ -134,11 +133,11 @@ int	main(int argc, char **argv)
 		if (info.share_status == info.argu[NUMBER_OF_PHILOS])
 		{
 			printf("all thread is in routine!!!!!!!!!!!!!!!!!!!\n");
-			info.share_status = ALIVE;
-			gettimeofday(&info.start_time, NULL);
 			break ;
 		}
 	}
+	info.share_status = ALIVE;
+	gettimeofday(&info.start_time, NULL);
 	usleep(50);
 	status_monitoring(&info, philo);
 	printf("will detach!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
@@ -149,5 +148,7 @@ int	main(int argc, char **argv)
 		// mutex_unlock -> mutex_destroy(unlock상태여야 함)
 	}
 	printf("detach all success\n");
+	// system("leaks ./philo");
 	// double_free();
+	// ps -eLf | grep testsrv
 }

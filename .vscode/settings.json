@@ -19,6 +19,7 @@
 		"vector": "c",
 		"minishell.h": "c",
 		"__locale": "c",
-		"__mutex_base": "c"
+		"__mutex_base": "c",
+		"time.h": "c"
 	}
 }

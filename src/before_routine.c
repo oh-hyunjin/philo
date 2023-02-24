@@ -6,7 +6,7 @@
 /*   By: hyoh <hyoh@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/17 10:52:14 by hyoh              #+#    #+#             */
-/*   Updated: 2023/02/22 10:47:29 by hyoh             ###   ########.fr       */
+/*   Updated: 2023/02/24 10:53:51 by hyoh             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,13 +16,13 @@ int	init_vars(t_info *info, t_philo **philo, pthread_t **pthread)
 {
 	int	i;
 
-	info->fork = (t_fork *)malloc \
-		(sizeof(t_fork) * (info->argu[NUMBER_OF_PHILOS] + 1));
+	info->fork = (m_fork *)malloc \
+		(sizeof(m_fork) * (info->argu[NUMBER_OF_PHILOS] + 1));
 	*philo = (t_philo *)malloc \
 		(sizeof(t_philo) * (info->argu[NUMBER_OF_PHILOS] + 1));
 	*pthread = (pthread_t *)malloc \
 		(sizeof(pthread_t) * (info->argu[NUMBER_OF_PHILOS] + 1));
-	if (info->fork == NULL || philo == NULL || pthread == NULL) // 맞나?
+	if (info->fork == NULL || philo == NULL || pthread == NULL) // 맞나? *붙여야되나
 		return (-1);
 
 	info->share_status = READY;
@@ -30,8 +30,7 @@ int	init_vars(t_info *info, t_philo **philo, pthread_t **pthread)
 	while (++i <= info->argu[NUMBER_OF_PHILOS]) // from 1
 	{
 		// fork
-		info->fork[i].status = UNLOCK;
-		if (pthread_mutex_init(&(info->fork[i]).mutex, NULL) == -1)
+		if (pthread_mutex_init(&(info->fork[i]), NULL) == -1)
 			return (-1);
 		// philo
 		(*philo)[i].id = i;

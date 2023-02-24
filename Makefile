@@ -6,28 +6,37 @@
 #    By: hyoh <hyoh@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/02/13 09:56:38 by hyoh              #+#    #+#              #
-#    Updated: 2023/02/17 10:56:45 by hyoh             ###   ########.fr        #
+#    Updated: 2023/02/24 12:39:26 by hyoh             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME	=	philo
+NAME_MDT	=	philo
+NAME_BNS	=	philo_bonus
 
-CC		=	cc
-CFLAG	=	-Wall -Wextra -Werror
-RM		=	rm -f
+CC			=	cc
+CFLAG		=	-Wall -Wextra -Werror
+RM			=	rm -f
 
-SRCS_DIR	=	./src
+DIR_MDT		=	./philo
+DIR_BNS		=	./philo_bonus
 
-SRC		=	philo.c	utils.c	before_routine.c
-SRC_BN	=	philo.c	utils.c	before_routine.c
+SRC_MDT		=	philo.c \ # must in philo directory
+			utils.c \
+			before_routine.c \
+			status_check.c
 
-OBJ		=	$(addprefix $(SRCS_DIR)/, $(SRC:.c=.o))
-OBJ_BN	=	$(addprefix $(SRCS_DIR)/, $(SRC_BN:.c=.o))
+SRC_BNS		=	philo_bonus.c \ # philo_bonus directory
+			utils_bonus.c
+
+OBJ_MDT		=	$(addprefix $(DIR_MDT)/, $(SRC_MDT:.c=.o))
+OBJ_BNS		=	$(addprefix $(DIR_BNS)/, $(SRC_BNS:.c=.o))
 
 ifdef WITH_BONUS
-	OBJECT = $(OBJ_BN)
+	NAME	=	$(NAME_BNS)
+	OBJECT	=	$(OBJ_BNS)
 else
-	OBJECT = $(OBJ)
+	NAME	=	$(NAME_BNS)
+	OBJECT	=	$(OBJ_MDT)
 endif
 
 all	: $(NAME)
@@ -42,10 +51,10 @@ bonus :
 	make WITH_BONUS=1 all
 
 clean :
-	$(RM) $(OBJ) $(OBJ_BN)
+	$(RM) $(OBJ_MDT) $(OBJ_BNS)
 
 fclean : clean
-	$(RM) $(NAME)
+	$(RM) $(NAME_MDT) $(NAME_BNS)
 
 re : fclean all
 
