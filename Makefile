@@ -6,7 +6,7 @@
 #    By: hyoh <hyoh@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/02/13 09:56:38 by hyoh              #+#    #+#              #
-#    Updated: 2023/02/24 12:39:26 by hyoh             ###   ########.fr        #
+#    Updated: 2023/02/25 12:15:52 by hyoh             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,16 +17,20 @@ CC			=	cc
 CFLAG		=	-Wall -Wextra -Werror
 RM			=	rm -f
 
-DIR_MDT		=	./philo
-DIR_BNS		=	./philo_bonus
+DIR_MDT		=	./mandatory #ㅂㅏ꾸ㅓ야됨
+DIR_BNS		=	./bonus
 
-SRC_MDT		=	philo.c \ # must in philo directory
-			utils.c \
-			before_routine.c \
-			status_check.c
+SRC_MDT		=	philo.c \
+				utils.c \
+				before_routine.c \
+				status_check.c
 
-SRC_BNS		=	philo_bonus.c \ # philo_bonus directory
-			utils_bonus.c
+SRC_BNS		=	philo_bonus.c \
+				action_bonus.c \
+				ready_bonus.c \
+				utils_bonus.c \
+
+
 
 OBJ_MDT		=	$(addprefix $(DIR_MDT)/, $(SRC_MDT:.c=.o))
 OBJ_BNS		=	$(addprefix $(DIR_BNS)/, $(SRC_BNS:.c=.o))
@@ -54,7 +58,7 @@ clean :
 	$(RM) $(OBJ_MDT) $(OBJ_BNS)
 
 fclean : clean
-	$(RM) $(NAME_MDT) $(NAME_BNS)
+	$(RM) $(NAME)
 
 re : fclean all
 

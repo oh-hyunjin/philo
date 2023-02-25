@@ -1,6 +1,13 @@
 #include <stdio.h>
 
+long long	func()
+{
+	int a = 3;
+	long long	b = 2;
+	return (a - b);
+}
+
 int main(int argc, char **argv)
 {
-	printf("argc: %d\n", argc);
+	printf("%lld\n", func());
 }

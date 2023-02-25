@@ -6,7 +6,7 @@
 /*   By: hyoh <hyoh@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/23 12:43:55 by hyoh              #+#    #+#             */
-/*   Updated: 2023/02/24 13:14:54 by hyoh             ###   ########.fr       */
+/*   Updated: 2023/02/25 12:18:16 by hyoh             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,30 +42,37 @@ typedef struct s_info
 	int			argu[5];
 	int			share_status;
 	long long	start_time;
-	semt_t		fork;
+	sem_t		*fork;
 }	t_info;
 
 typedef struct s_philo // routine 넘길 구조체 배열
 {
-	int		id;
-	int		rest_num;
-	t_time	time;
+	int			id;
+	int			rest_num;
+	long long	time;
 }	t_philo;
 
 
 // philo_bonus
-void	eating(t_info *info, t_philo *philo);
-void	sleeping(t_info *info, t_philo *philo);
-void	thinking(t_info *info, t_philo *philo);
-void	action(t_info *info, t_philo *philo);
-int		status_moniotroing(t_info *info, t_philo *philos);
+void		status_monitoring(t_info *info, t_philo *philos);
+void		action(t_info *info, t_philo *philo);
 
-// utils_bonus
-int		ft_atoi(char *str);
-int		argv_check(int argc, char **argv, t_info *info);
-int		init(t_info *info, t_philo **philo, pid_t **pids);
-void	print_action(int action, t_philo *philo);
+// action_bonus
+void		taking_fork(t_info *info, t_philo *philo);
+void		eating(t_info *info, t_philo *philo);
+void		sleeping(t_info *info, t_philo *philo);
+void		thinking(t_info *info, t_philo *philo);
 
+// ready_bonus
+int			ft_atoi(char *str);
+int			argv_check(int argc, char **argv, t_info *info);
+int			init(t_info *info, t_philo **philo);
+
+// utils_bons
+int			is_dead(t_info *info, t_philo *philo);
+long long	get_cur_time(t_info *info);
+long long	get_rest_time(t_info *info, t_philo *philo);
+int			ft_usleep(t_info *info, t_philo *philo, int wait);
 
 
 #endif
