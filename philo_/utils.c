@@ -74,7 +74,7 @@ void	print_action(int action, t_philo *philo)
 	int rest_time = get_rest_time(philo);
 	
 	if (action == TAKING_FORK)
-		printf("%d [%d] has taken forks <%d>\n", cur_time, philo->id, rest_time);
+		printf("%d [%d] has taken a fork <%d>\n", cur_time, philo->id, rest_time);
 	else if (action == EATING)
 		printf("%d [%d] is eating <%d> (rest num: %d)------\n", cur_time, philo->id, rest_time, philo->rest_num);
 	else if (action == SLEEPING)

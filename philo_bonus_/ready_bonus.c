@@ -51,7 +51,7 @@ int	argv_check(int argc, char **argv, t_info *info)
 	return (1);
 }
 
-int	init(t_info *info, t_philo **philo)
+int	init(t_info *info, t_philo **philo, int **pid)
 {
 	int		i;
 	pid_t	pid;
@@ -67,18 +67,20 @@ int	init(t_info *info, t_philo **philo)
 		// free philo
 		return (-1);
 	}
-	info->share_status = READY;
+	sem_unlink("is_full");
+	info->is_full = sem_open("is_full", O_CREAT, S_IRWXU, info->argu[NUMBER_OF_PHILOS]); // o_flags?????????
+	info->status = ALIVE;
 	i = 0;
 	while (++i <= info->argu[NUMBER_OF_PHILOS])
 	{
 		(*philo)[i].id = i;
 		(*philo)[i].rest_num = info->argu[MIN_TO_EAT];
-		pid = fork();
-		if (pid < 0)
+		pid[i] = fork();
+		if (pid[i] < 0)
 			printf("fork fail\n");
-		if (pid == 0)
+		if (pid[i] == 0)
 			printf("	[%d] process created\n", i);
-		if (pid != 0)
+		if (pid[i] != 0)
 			action(info, &(*philo)[i]); // 자식은 여기서 exit
 	}
 	return (1);

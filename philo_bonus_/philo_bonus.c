@@ -14,7 +14,6 @@
 
 void	action(t_info *info, t_philo *philo)
 {
-	printf("share status pointer : %p\n", &info->share_status);
 	while(info->share_status == READY)
 		continue ;
 	printf("	[%d] action start !\n", philo->id);
@@ -30,56 +29,53 @@ void	action(t_info *info, t_philo *philo)
 	exit(0);
 }
 
-void status_monitoring(t_info *info, t_philo *philos)
+int full_check(t_info *info)
 {
 	int	i;
-	int	full_flag;
 
-	while (1)
-	{
-		if (info->share_status != ALIVE)
-			return ;
-		i = 0;
-		full_flag = 1;
-		while (++i <= info->argu[NUMBER_OF_PHILOS])
-		{
-			if (is_dead(info, &philos[i]) == 1)
-				return ;
-			if (philos[i].rest_num > 0)
-				full_flag = 0;
-		}
-		if (info->argu[MIN_TO_EAT] != -1 && full_flag == 1)
-		{
-			info->share_status = FULL;
-			return ;
-		}
-		// usleep(100);
-	}
+	i = info->argu[NUMBER_OF_PHILOS];
+	while (i--)
+		sem_wait(info->is_full);
+	info->status = FULL;
+	printf("full !!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+	return (0);
+}
+
+int dead_check(t_info *info)
+{
+	int	status;
+
+	waitpid(0, &status, 0);
+	info->status = DEAD;
+	printf("someone died !!!!!!!!!!!!!!!!!!!\n");
+	return (0);
+}
+
+void	kill_all(t_info *info, t_philo **philo, int **pid)
+{
+	// pthread join or detach, kill every philo, sem_close,unlink
 }
 
 int	main(int argc, char **argv)
 {
 	t_info	info;
 	t_philo	*philos;
-	// int		status;
+	int		*pids;
 
-	if (argv_check(argc, argv, &info) < 0 || init(&info, &philos) < 0)
+	if (argv_check(argc, argv, &info) < 0 || init(&info, &philos, &pids) < 0)
 	{
 		printf("error\n");
 		return (0);
 	}
 
-	printf("share status pointer(in main) : %p\n", &info.share_status);
 	info.start_time = get_cur_time(&info);
 	printf("start!\n");
-	info.share_status = ALIVE;
-
-	//usleep
-	// status_monitoring(&info, philos);
-	// while (wait(&status) != -1)
-		// continue ;
-
-	// free variables
-	// sem_close(info.fork);
-	// sem_unlink("fork");
+	pthread_create(full_check); // thread
+	pthread_create(dead_check); // thread
+	
+	while (info.status != ALIVE)
+		continue ;
+	kill_all(&info, &philos, &pids);
 }
+
+//sem : every fork, full_flag, dead_flag

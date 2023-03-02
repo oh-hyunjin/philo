@@ -31,7 +31,7 @@ int	getting_fork(t_philo *philo, t_info *info, int *fst, int *snd)
 	}
 	if (is_dead(philo) == 1) // unlock?
 		return (-1);
-	print_action(TAKING_FORK, philo);
+	print_action(TAKING_FORK, philo); // taken A fork 니까 하나 집을 때마다 출력하게 바꾸기
 	// printf("	(in gettinf_fork) [%d] rest:%d, cur:%d\n", philo->id, get_rest_time(philo), get_cur_time(philo));
 	return (0);
 }

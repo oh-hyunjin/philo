@@ -25,22 +25,23 @@
 # define TIME_TO_SLEEP 3
 # define MIN_TO_EAT 4
 
-# define READY 0
-# define ALIVE -1
-# define DEAD -2
-# define FULL -3
-
 # define TAKING_FORK 0
 # define EATING 1
 # define SLEEPING 2
 # define THINKING 3
+
+# define ALIVE 0
+# define DEAD 1
+# define FULL 2
 
 typedef struct timeval t_time; // norm????
 
 typedef struct s_info
 {
 	int			argu[5];
-	int			share_status;
+	sem_t		is_full;
+	sem_t		is_dead;
+	int			status;
 	long long	start_time;
 	sem_t		*fork;
 }	t_info;
@@ -66,7 +67,7 @@ void		thinking(t_info *info, t_philo *philo);
 // ready_bonus
 int			ft_atoi(char *str);
 int			argv_check(int argc, char **argv, t_info *info);
-int			init(t_info *info, t_philo **philo);
+int			init(t_info *info, t_philo **philo, int **pid);
 
 // utils_bons
 int			is_dead(t_info *info, t_philo *philo);
