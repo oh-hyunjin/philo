@@ -51,37 +51,46 @@ int	argv_check(int argc, char **argv, t_info *info)
 	return (1);
 }
 
-int	init(t_info *info, t_philo **philo, int **pid)
+int	init(t_info *info, t_philo **philo, pid_t **pid)
 {
 	int		i;
-	pid_t	pid;
+	t_time	cur;
 
-	sem_unlink("fork");
-	info->fork = sem_open("fork", O_CREAT, S_IRWXU, info->argu[NUMBER_OF_PHILOS]); // o_flags?????????
-	if (info->fork == SEM_FAILED)
-		return (-1);
+	gettimeofday(&cur, NULL);
+	info->start_time = cur.tv_sec * 1000 + cur.tv_usec / 1000;
 	*philo = (t_philo *)malloc \
 		(sizeof(t_philo) * (info->argu[NUMBER_OF_PHILOS] + 1));
-	if (*philo == NULL)
-	{
-		// free philo
-		return (-1);
-	}
-	sem_unlink("is_full");
-	info->is_full = sem_open("is_full", O_CREAT, S_IRWXU, info->argu[NUMBER_OF_PHILOS]); // o_flags?????????
-	info->status = ALIVE;
+	*pid = (pid_t *)malloc \
+		(sizeof(pid_t) * (info->argu[NUMBER_OF_PHILOS] + 1));
 	i = 0;
 	while (++i <= info->argu[NUMBER_OF_PHILOS])
 	{
 		(*philo)[i].id = i;
 		(*philo)[i].rest_num = info->argu[MIN_TO_EAT];
-		pid[i] = fork();
-		if (pid[i] < 0)
-			printf("fork fail\n");
-		if (pid[i] == 0)
-			printf("	[%d] process created\n", i);
-		if (pid[i] != 0)
-			action(info, &(*philo)[i]); // 자식은 여기서 exit
+		(*philo)[i].info = info;
+		(*pid)[i] = fork();
+		if ((*pid)[i] > 0)
+			printf("[%d] process created\n", i);
+		if ((*pid)[i] == 0)
+			action(info, &(*philo)[i]);
+	}
+	return (1);
+}
+
+int	sem_set(t_info *info)
+{
+	int	i;
+
+	sem_unlink("full");
+	sem_unlink("fork");
+	info->full = sem_open("full", O_CREAT, S_IRWXU, info->argu[NUMBER_OF_PHILOS]); // o_flags?????????
+	info->fork = sem_open("fork", O_CREAT, S_IRWXU, info->argu[NUMBER_OF_PHILOS]); // o_flags?????????
+	i = 0;
+	while (++i <= info->argu[NUMBER_OF_PHILOS])
+	{
+		sem_post(info->full);
+		sem_post(info->fork);
+		printf("loked [%d]\n", i);
 	}
 	return (1);
 }

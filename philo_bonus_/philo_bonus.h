@@ -14,10 +14,12 @@
 # define PHILO_BONUS_H
 
 # include <stdio.h>
+# include <pthread.h>
 # include <semaphore.h>
 # include <sys/time.h>
 # include <stdlib.h>
 # include <unistd.h>
+# include <signal.h>
 
 # define NUMBER_OF_PHILOS 0
 # define TIME_TO_DIE 1
@@ -32,16 +34,15 @@
 
 # define ALIVE 0
 # define DEAD 1
-# define FULL 2
+// # define FULL 2
 
 typedef struct timeval t_time; // norm????
 
 typedef struct s_info
 {
 	int			argu[5];
-	sem_t		is_full;
-	sem_t		is_dead;
-	int			status;
+	sem_t		*full;
+	sem_t		*dead;
 	long long	start_time;
 	sem_t		*fork;
 }	t_info;
@@ -51,12 +52,15 @@ typedef struct s_philo // routine 넘길 구조체 배열
 	int			id;
 	int			rest_num;
 	long long	time;
+	int			status;
+	t_info		*info;
 }	t_philo;
 
 
 // philo_bonus
-void		status_monitoring(t_info *info, t_philo *philos);
 void		action(t_info *info, t_philo *philo);
+void		*death_check_thr(void *param);
+void		*full_monitoring_thr(void *param);
 
 // action_bonus
 void		taking_fork(t_info *info, t_philo *philo);
@@ -68,12 +72,13 @@ void		thinking(t_info *info, t_philo *philo);
 int			ft_atoi(char *str);
 int			argv_check(int argc, char **argv, t_info *info);
 int			init(t_info *info, t_philo **philo, int **pid);
+int			sem_set(t_info *info);
 
 // utils_bons
-int			is_dead(t_info *info, t_philo *philo);
-long long	get_cur_time(t_info *info);
-long long	get_rest_time(t_info *info, t_philo *philo);
-int			ft_usleep(t_info *info, t_philo *philo, int wait);
+// int			is_dead(t_info *info, t_philo *philo);
+int			get_cur_time(t_info *info);
+int			get_rest_time(t_info *info, t_philo *philo);
+int			ft_usleep(t_philo *philo, int wait);
 
 
 #endif

@@ -11,7 +11,7 @@
 # **************************************************************************** #
 
 NAME_MDT	=	philo
-NAME_BNS	=	philo_bonus
+NAME_BNS	=	philo # 수정!!!!
 
 CC			=	cc
 CFLAG		=	-Wall -Wextra -Werror
