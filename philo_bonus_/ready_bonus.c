@@ -79,18 +79,13 @@ int	init(t_info *info, t_philo **philo, pid_t **pid)
 
 int	sem_set(t_info *info)
 {
-	int	i;
+	// int	i;
 
 	sem_unlink("full");
 	sem_unlink("fork");
-	info->full = sem_open("full", O_CREAT, S_IRWXU, info->argu[NUMBER_OF_PHILOS]); // o_flags?????????
-	info->fork = sem_open("fork", O_CREAT, S_IRWXU, info->argu[NUMBER_OF_PHILOS]); // o_flags?????????
-	i = 0;
-	while (++i <= info->argu[NUMBER_OF_PHILOS])
-	{
-		sem_post(info->full);
-		sem_post(info->fork);
-		printf("loked [%d]\n", i);
-	}
+	sem_unlink("print");
+	info->full = sem_open("full", O_CREAT, 0644, 0); // o_flags?????????
+	info->fork = sem_open("fork", O_CREAT, 0644, info->argu[NUMBER_OF_PHILOS]); // o_flags?????????
+	info->print = sem_open("print", O_CREAT, 0644, 1);
 	return (1);
 }

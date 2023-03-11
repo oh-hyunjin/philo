@@ -21,6 +21,9 @@
 # include <unistd.h>
 # include <signal.h>
 
+# include <errno.h>
+# include <string.h>
+
 # define NUMBER_OF_PHILOS 0
 # define TIME_TO_DIE 1
 # define TIME_TO_EAT 2
@@ -34,6 +37,7 @@
 
 # define ALIVE 0
 # define DEAD 1
+# define FULL 2
 // # define FULL 2
 
 typedef struct timeval t_time; // norm????
@@ -42,7 +46,8 @@ typedef struct s_info
 {
 	int			argu[5];
 	sem_t		*full;
-	sem_t		*dead;
+	sem_t		*print;
+	int			status;
 	long long	start_time;
 	sem_t		*fork;
 }	t_info;
@@ -52,7 +57,6 @@ typedef struct s_philo // routine 넘길 구조체 배열
 	int			id;
 	int			rest_num;
 	long long	time;
-	int			status;
 	t_info		*info;
 }	t_philo;
 

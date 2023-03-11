@@ -43,10 +43,7 @@ int	ft_usleep(t_philo *philo, int wait)
 	{
 		if (goal <= get_cur_time(philo->info))
 			break ;
-		// if (is_dead(info, philo) == 1)
-		// 	break ;
-		usleep(10);
+		usleep(500);
 	}
-	// printf("	%d [%d] ft_usleep for %d (goal was %d)\n", get_cur_time(philo), philo->id, diff(tmp1, tmp2), goal);
 	return (0);
 }

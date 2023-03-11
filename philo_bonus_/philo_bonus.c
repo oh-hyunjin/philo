@@ -18,29 +18,28 @@ void	*death_check_thr(void *param)
 
 	philo = (t_philo *)param;
 	while (get_rest_time(philo->info, philo) > 0)
-		usleep(10);
-	printf("%d is died\n", philo->id);
+		usleep(100);
+	sem_wait(philo->info->print);
+	printf("%d [%d] died\n", get_cur_time(philo->info), philo->id);
 	exit(0);
-	// philo->status = DEAD;
+	return (0);
 }
 
 void	action(t_info *info, t_philo *philo)
 {
-	// int	status;
 	pthread_t tmp;
 
-	printf("[%d] is in action\n", philo->id);
 	philo->time = get_cur_time(info);
-	philo->status = ALIVE;
 	pthread_create(&tmp, NULL, death_check_thr, philo);
-	while (philo->status == ALIVE) // 타인이 죽으면 kill all에서 끝냄
+	while (1)
 	{
 		taking_fork(info, philo);
 		eating(info, philo);
 		sleeping(info, philo);
 		thinking(info, philo);
+		usleep(500);
 	}
-	pthread_detach(tmp);
+	printf("detach [%d] death check thread res : %d\n", philo->id, pthread_detach(tmp));
 	printf("[%d] exit\n", philo->id);
 	exit(0);
 }
@@ -52,24 +51,43 @@ void	*full_monitoring_thr(void *param)
 
 	info = (t_info *)param;
 	i = 0;
+	printf("full monitoring start : %d\n", info->argu[NUMBER_OF_PHILOS]);
 	while (++i <= info->argu[NUMBER_OF_PHILOS])
-	{
-		printf("will wait full sem\n");
 		sem_wait(info->full);
-		printf("someone satisfied\n");
-	}
+	info->status = FULL;
+	sem_wait(info->print);
 	printf("full !!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 	return (0);
 }
 
-void	status_monitoring(t_philo *philo)
+void	*dead_monitoring_thr(void *param)
+{
+	t_info *info;
+	int		tmp;
+
+	info = (t_info *)param;
+	waitpid(-1, &tmp, 0);
+	if (info->status == ALIVE)
+	{
+		info->status = DEAD;
+		printf("!!!!!!!!!!!somone died!!!!!!!!!!!!!!\n");
+	}
+	return (0);
+}
+
+void	status_monitoring(t_info *info)
 {
 	pthread_t	full_thr;
-	int			tmp;
+	pthread_t	dead_thr;
 
-	pthread_create(&full_thr, NULL, full_monitoring_thr, philo->info);
-	waitpid(-1, &tmp, 0);
+	info->status = ALIVE;
+	pthread_create(&full_thr, NULL, full_monitoring_thr, info);
+	pthread_create(&dead_thr, NULL, dead_monitoring_thr, info);
+
+	while (info->status == ALIVE)
+		continue ;
 	pthread_detach(full_thr);
+	pthread_detach(dead_thr);
 }
 
 int	main(int argc, char **argv)
@@ -84,15 +102,16 @@ int	main(int argc, char **argv)
 		printf("error\n");
 		return (0);
 	}
+	printf("init clear\n");
 
-	usleep(100);
-	printf("@"); // 부모에서 한 번만 출력돼야 한다. 자식은 exit됨
-	status_monitoring(philos);
+	status_monitoring(&info);	
+
 	int i = 0;
+	// kill(0, SIGKILL);
 	while (++i <= info.argu[NUMBER_OF_PHILOS])
 	{
 		kill(pids[i], SIGKILL);
-		printf("killed [i]\n");
+		// printf("killed [%d]\n", i);
 	}
 }
 
