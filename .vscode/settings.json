@@ -22,6 +22,7 @@
 		"__mutex_base": "c",
 		"time.h": "c",
 		"unistd.h": "c",
-		"signal.h": "c"
+		"signal.h": "c",
+		"philo.h": "c"
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: hyoh <hyoh@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/25 12:14:37 by hyoh              #+#    #+#             */
-/*   Updated: 2023/02/25 12:18:03 by hyoh             ###   ########.fr       */
+/*   Updated: 2023/03/12 18:26:17 by hyoh             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,8 +51,8 @@ void	*full_monitoring_thr(void *param)
 
 	info = (t_info *)param;
 	i = 0;
-	printf("full monitoring start : %d\n", info->argu[NUMBER_OF_PHILOS]);
-	while (++i <= info->argu[NUMBER_OF_PHILOS])
+	printf("full monitoring start : %d\n", info->argu[NUM_OF_PHILOS]);
+	while (++i <= info->argu[NUM_OF_PHILOS])
 		sem_wait(info->full);
 	info->status = FULL;
 	sem_wait(info->print);
@@ -108,7 +108,7 @@ int	main(int argc, char **argv)
 
 	int i = 0;
 	// kill(0, SIGKILL);
-	while (++i <= info.argu[NUMBER_OF_PHILOS])
+	while (++i <= info.argu[NUM_OF_PHILOS])
 	{
 		kill(pids[i], SIGKILL);
 		// printf("killed [%d]\n", i);

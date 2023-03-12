@@ -6,7 +6,7 @@
 #    By: hyoh <hyoh@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/02/13 09:56:38 by hyoh              #+#    #+#              #
-#    Updated: 2023/02/25 12:15:52 by hyoh             ###   ########.fr        #
+#    Updated: 2023/03/12 18:16:01 by hyoh             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,6 +23,7 @@ DIR_BNS		=	./philo_bonus_
 SRC_MDT		=	philo.c\
 				utils.c\
 				before_routine.c\
+				main_thread.c
 
 SRC_BNS		=	philo_bonus.c\
 				action_bonus.c\

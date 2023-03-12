@@ -6,7 +6,7 @@
 /*   By: hyoh <hyoh@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/25 11:50:58 by hyoh              #+#    #+#             */
-/*   Updated: 2023/02/25 12:02:37 by hyoh             ###   ########.fr       */
+/*   Updated: 2023/03/12 18:26:17 by hyoh             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,11 +59,11 @@ int	init(t_info *info, t_philo **philo, pid_t **pid)
 	gettimeofday(&cur, NULL);
 	info->start_time = cur.tv_sec * 1000 + cur.tv_usec / 1000;
 	*philo = (t_philo *)malloc \
-		(sizeof(t_philo) * (info->argu[NUMBER_OF_PHILOS] + 1));
+		(sizeof(t_philo) * (info->argu[NUM_OF_PHILOS] + 1));
 	*pid = (pid_t *)malloc \
-		(sizeof(pid_t) * (info->argu[NUMBER_OF_PHILOS] + 1));
+		(sizeof(pid_t) * (info->argu[NUM_OF_PHILOS] + 1));
 	i = 0;
-	while (++i <= info->argu[NUMBER_OF_PHILOS])
+	while (++i <= info->argu[NUM_OF_PHILOS])
 	{
 		(*philo)[i].id = i;
 		(*philo)[i].rest_num = info->argu[MIN_TO_EAT];
@@ -85,7 +85,7 @@ int	sem_set(t_info *info)
 	sem_unlink("fork");
 	sem_unlink("print");
 	info->full = sem_open("full", O_CREAT, 0644, 0); // o_flags?????????
-	info->fork = sem_open("fork", O_CREAT, 0644, info->argu[NUMBER_OF_PHILOS]); // o_flags?????????
+	info->fork = sem_open("fork", O_CREAT, 0644, info->argu[NUM_OF_PHILOS]); // o_flags?????????
 	info->print = sem_open("print", O_CREAT, 0644, 1);
 	return (1);
 }

@@ -6,7 +6,7 @@
 /*   By: hyoh <hyoh@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/23 12:43:55 by hyoh              #+#    #+#             */
-/*   Updated: 2023/02/25 12:18:16 by hyoh             ###   ########.fr       */
+/*   Updated: 2023/03/12 18:26:17 by hyoh             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 # include <errno.h>
 # include <string.h>
 
-# define NUMBER_OF_PHILOS 0
+# define NUM_OF_PHILOS 0
 # define TIME_TO_DIE 1
 # define TIME_TO_EAT 2
 # define TIME_TO_SLEEP 3

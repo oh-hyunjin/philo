@@ -6,7 +6,7 @@
 /*   By: hyoh <hyoh@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/17 10:52:14 by hyoh              #+#    #+#             */
-/*   Updated: 2023/02/24 10:53:51 by hyoh             ###   ########.fr       */
+/*   Updated: 2023/03/12 21:25:56 by hyoh             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,23 +15,26 @@
 int	init_vars(t_info *info, t_philo **philo, pthread_t **pthread)
 {
 	int	i;
+	int	philos_num;
 
-	info->fork = (m_fork *)malloc \
-		(sizeof(m_fork) * (info->argu[NUMBER_OF_PHILOS] + 1));
-	*philo = (t_philo *)malloc \
-		(sizeof(t_philo) * (info->argu[NUMBER_OF_PHILOS] + 1));
-	*pthread = (pthread_t *)malloc \
-		(sizeof(pthread_t) * (info->argu[NUMBER_OF_PHILOS] + 1));
-	if (info->fork == NULL || philo == NULL || pthread == NULL)
-		return (-1);
-	if (pthread_mutex_init(&(info->print), NULL) == -1)
-		return (-1);
-	info->ready_philo_num = 0;
-	i = 0;
-	while (++i <= info->argu[NUMBER_OF_PHILOS])
+	philos_num = info->argu[NUM_OF_PHILOS];
+	info->fork = (t_fork *)malloc(sizeof(t_fork) * (philos_num + 1));
+	*philo = (t_philo *)malloc(sizeof(t_philo) * (philos_num + 1));
+	*pthread = (pthread_t *)malloc(sizeof(pthread_t) * (philos_num + 1));
+	if (!info->fork || !philo || !pthread)
 	{
-		if (pthread_mutex_init(&(info->fork[i]), NULL) == -1)
-			return (-1);
+		free(fork);
+		free(*philo);
+		free(*pthread);
+		return (-1);
+	}
+	pthread_mutex_init(&(info->print), NULL);
+	info->share_status = READY;
+	i = 0;
+	while (++i <= philos_num)
+	{
+		pthread_mutex_init(&(info->fork[i].mutex), NULL);
+		info->fork[i].status = UNLOCK;
 		(*philo)[i].id = i;
 		(*philo)[i].rest_num = info->argu[MIN_TO_EAT];
 		(*philo)[i].info = info;
@@ -41,7 +44,7 @@ int	init_vars(t_info *info, t_philo **philo, pthread_t **pthread)
 
 int	ft_atoi(char *str)
 {
-	int	num; // unint?
+	int	num;// unint?
 
 	if (str == NULL)
 		return (-1);
