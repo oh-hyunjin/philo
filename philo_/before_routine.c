@@ -22,17 +22,16 @@ int	init_vars(t_info *info, t_philo **philo, pthread_t **pthread)
 		(sizeof(t_philo) * (info->argu[NUMBER_OF_PHILOS] + 1));
 	*pthread = (pthread_t *)malloc \
 		(sizeof(pthread_t) * (info->argu[NUMBER_OF_PHILOS] + 1));
-	if (info->fork == NULL || philo == NULL || pthread == NULL) // 맞나? *붙여야되나
+	if (info->fork == NULL || philo == NULL || pthread == NULL)
 		return (-1);
-
-	info->share_status = READY;
+	if (pthread_mutex_init(&(info->print), NULL) == -1)
+		return (-1);
+	info->ready_philo_num = 0;
 	i = 0;
-	while (++i <= info->argu[NUMBER_OF_PHILOS]) // from 1
+	while (++i <= info->argu[NUMBER_OF_PHILOS])
 	{
-		// fork
 		if (pthread_mutex_init(&(info->fork[i]), NULL) == -1)
 			return (-1);
-		// philo
 		(*philo)[i].id = i;
 		(*philo)[i].rest_num = info->argu[MIN_TO_EAT];
 		(*philo)[i].info = info;

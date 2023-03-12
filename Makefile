@@ -23,7 +23,6 @@ DIR_BNS		=	./philo_bonus_
 SRC_MDT		=	philo.c\
 				utils.c\
 				before_routine.c\
-				status_check.c
 
 SRC_BNS		=	philo_bonus.c\
 				action_bonus.c\

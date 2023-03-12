@@ -12,8 +12,6 @@
 
 #include "philo.h"
 
-// us -> ms -> s
-
 int diff(t_time old, t_time new)
 {
 	long long	oldms;
@@ -26,7 +24,7 @@ int diff(t_time old, t_time new)
 	return (ret);
 }
 
-int	get_cur_time(t_philo *philo) // 없애기
+int	get_cur_time(t_philo *philo)
 {
 	t_time	cur;
 
@@ -48,49 +46,42 @@ int	ft_usleep(t_philo *philo, int wait)
 {
 	int	goal;
 
-	t_time tmp1;
-	gettimeofday(&tmp1, NULL);
 	goal = get_cur_time(philo) + wait;
 	while(1)
 	{
 		if (goal <= get_cur_time(philo))
 			break ;
-		if (is_dead(philo) == 1)
-			break ;
 		usleep(100);
 	}
-	t_time tmp2;
-	gettimeofday(&tmp2, NULL);
-	// printf("	%d [%d] ft_usleep for %d (goal was %d)\n", get_cur_time(philo), philo->id, diff(tmp1, tmp2), goal);
 	return (0);
 }
 
-void	print_action(int action, t_philo *philo)
+void	status_monitoring(t_info *info, t_philo *philos)
 {
-	t_time	cur;
-	gettimeofday(&cur, NULL);
-	int cur_time = diff(philo->info->start_time, cur);
+	int		i;
+	int		flag;
 
-	int rest_time = get_rest_time(philo);
-	
-	if (action == TAKING_FORK)
-		printf("%d [%d] has taken a fork <%d>\n", cur_time, philo->id, rest_time);
-	else if (action == EATING)
-		printf("%d [%d] is eating <%d> (rest num: %d)------\n", cur_time, philo->id, rest_time, philo->rest_num);
-	else if (action == SLEEPING)
-		printf("%d [%d] is sleeping <%d>\n", cur_time, philo->id, rest_time);
-	else if (action == THINKING)
-		printf("%d [%d] is thinking <%d>\n", cur_time, philo->id, rest_time);
-	else if (action == DYING)
-		printf("%d [%d] died <%d>\n", cur_time, philo->id, rest_time);
-	// else if (action == READY_FORK)
-	// 	printf("%d [%d] is ready for forks!!\n", cur_time, philo->id);
-	// else if (action == DONE_EAT)
-	// 	printf("%d [%d] finished eating\n", cur_time, philo->id);
-	// else if (action == DONE_SLEEP)
-	// 	printf("%d [%d] finished sleeping\n", cur_time, philo->id);
-	// else if (action == WAITING_FORK)
-	// 	printf("%d [%d] is waiting fork\n", cur_time, philo->id);
-	// else
-	// 	printf("print_action error ! !\n");
+	while (1)
+	{
+		i = 0;
+		flag = 1;
+		while (++i <= info->argu[NUMBER_OF_PHILOS])
+		{
+			if (get_rest_time(&philos[i]) < 0)
+			{
+				pthread_mutex_lock(&(info->print));
+				printf("%d [%d] died\n", get_cur_time(&philos[i]), philos[i].id);
+				return ;
+			}
+			if (philos[i].rest_num > 0)
+				flag = 0;
+		}
+		if (info->argu[MIN_TO_EAT] != -1 && flag == 1)
+		{
+			printf(" --- everyone ate ---\n");
+			pthread_mutex_lock(&(info->print));
+			return ;
+		}
+		usleep(500);
+	}
 }
