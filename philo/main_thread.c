@@ -6,14 +6,12 @@
 /*   By: hyoh <hyoh@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/12 18:14:26 by hyoh              #+#    #+#             */
-/*   Updated: 2023/03/12 22:14:39 by hyoh             ###   ########.fr       */
+/*   Updated: 2023/03/13 13:04:40 by hyoh             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-#include <string.h>
-#include <errno.h>
 void	kill_all(t_info *info, t_philo *philo, pthread_t *pthread)
 {
 	int	i;
@@ -29,10 +27,10 @@ void	kill_all(t_info *info, t_philo *philo, pthread_t *pthread)
 			printf("fork destroy success~~~~\n");
 	}
 	printf("-----detach all success-----\n");
-	// free(info->fork); // 맞나..?
-	// free(philo);
-	// free(pthread);
-	(void)philo;
+	free(info->fork); // 맞나..?
+	free(philo);
+	free(pthread);
+	// (void)philo;
 }
 
 void	status_monitoring(t_info *info, t_philo *philos)

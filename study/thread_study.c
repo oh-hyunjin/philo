@@ -1,54 +1,29 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <stdlib.h>
+#include "../philo_bonus/philo_bonus.h"
 
-typedef struct s_info
+void *thread(void *param)
 {
-	int	num;
-	int	*share;
-} t_info;
+	sem_t *sema;
 
-void	init(t_info **info, int *share)
-{
-	*info = (t_info *)malloc(sizeof(t_info) * 3);
-
-	for (int i = 0; i < 3; i ++)
-	{
-		(*info)[i].num = i;
-		(*info)[i].share = share;
-	}
-
-	printf("---in init---\n");
-	for (int i = 0; i < 3; i ++)
-		printf("%d: %d, %d\n", i, (*info)[i].num, *(*info)[i].share);
-	printf("\n");
-}
-
-void	routine(void *param)
-{
-	t_info	*info;
-	info = (t_info *)param;
-
-	printf("---in routine---\n");
-	printf("num: %d, share: %d\n", info->num, *info->share);
-	printf("\n");
+	sema = (sem_t *)param;
+	sem_wait(sema);
+	printf("dont put this\n");
+	return (0);
 }
 
 int main()
 {
-	t_info	*info; // array 3
-	int		share;
+	sem_t *sema;
+	pthread_t thread_id;
 
-	init(&info, &share);
+	sem_unlink("sema");
+	sema = sem_open("full", O_CREAT, 0644, 0);
+	pthread_create(&thread_id, NULL, thread, sema);
 
-	printf("---in main---\n");
-	for (int i = 0; i < 3; i ++)
-		printf("%d: %d, %d\n", i, info[i].num, *info[i].share);
-	printf("\n");
+	sleep(2);
+	printf("thread detach result : %d\n", pthread_detach(thread_id));
+	printf("thread join result : %d : %s\n", pthread_join(thread_id, NULL), strerror(errno));
+	printf("will close and unlink sema\n");
 
-	share = 0;
-
-	for (int i = 0; i < 3; i++)
-		routine(&info[i]);
+	printf("sem close result : %d\n", sem_close(sema));
+	printf("sem unlink reslut : %d\n", sem_unlink("sema"));
 }

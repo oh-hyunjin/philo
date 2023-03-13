@@ -6,58 +6,37 @@
 #    By: hyoh <hyoh@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/02/13 09:56:38 by hyoh              #+#    #+#              #
-#    Updated: 2023/03/12 18:16:01 by hyoh             ###   ########.fr        #
+#    Updated: 2023/03/13 13:21:25 by hyoh             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME_MDT	=	philo
-NAME_BNS	=	philo # 수정!!!!
+NAME	=	philo_bonus
 
-CC			=	cc
-CFLAG		=	-Wall -Wextra -Werror
-RM			=	rm -f
+CC		=	cc
+CFLAG	=	-Wall -Wextra -Werror
+RM		=	rm -f
 
-DIR_MDT		=	./philo_#ㅂㅏ꾸ㅓ야됨!!!!!!!!!!!!!!!!!!!!!!!!!
-DIR_BNS		=	./philo_bonus_
+SRC		=	philo_bonus.c\
+			action_bonus.c\
+			ready_bonus.c\
+			utils_bonus.c\
 
-SRC_MDT		=	philo.c\
-				utils.c\
-				before_routine.c\
-				main_thread.c
-
-SRC_BNS		=	philo_bonus.c\
-				action_bonus.c\
-				ready_bonus.c\
-				utils_bonus.c\
-
-OBJ_MDT		=	$(addprefix $(DIR_MDT)/,$(SRC_MDT:.c=.o))
-OBJ_BNS		=	$(addprefix $(DIR_BNS)/,$(SRC_BNS:.c=.o))
-
-ifdef WITH_BONUS
-	NAME	=	$(NAME_BNS)
-	OBJECT	=	$(OBJ_BNS)
-else
-	NAME	=	$(NAME_MDT)
-	OBJECT	=	$(OBJ_MDT)
-endif
+OBJ		=	$(SRC:.c=.o)
 
 all	: $(NAME)
 
 %.o : %.c
 	$(CC) $(CFLAG) -c $< -o $@
 
-$(NAME) : $(OBJECT)
-	$(CC) $(CFLAG) $(OBJECT) -o $(NAME)
-
-bonus :
-	make WITH_BONUS=1 all
+$(NAME) : $(OBJ)
+	$(CC) $(CFLAG) $(OBJ) -o $(NAME)
 
 clean :
-	$(RM) $(OBJ_MDT) $(OBJ_BNS)
+	$(RM) $(OBJ)
 
 fclean : clean
-	$(RM) $(NAME_MDT) $(NAME_BNS)
+	$(RM) $(NAME)
 
 re : fclean all
 
-.PHONY : all clean fclean re bonus
+.PHONY : all clean fclean re

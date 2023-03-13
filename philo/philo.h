@@ -6,7 +6,7 @@
 /*   By: hyoh <hyoh@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/06 11:50:35 by hyoh              #+#    #+#             */
-/*   Updated: 2023/03/12 21:23:05 by hyoh             ###   ########.fr       */
+/*   Updated: 2023/03/13 10:53:22 by hyoh             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,28 +59,32 @@ typedef struct s_philo // routine 넘길 구조체 배열
 	t_info	*info;
 }	t_philo;
 
-//main_thread.c
+// main_thread.c
 int		main(int argc, char **argv);
 void	status_monitoring(t_info *info, t_philo *philos);
 void	kill_all(t_info *info, t_philo *philo, pthread_t *pthread);
 
-//philo
-void	getting_fork(t_philo *philo, t_info *info, int *fst, int *snd);
+// before routine.c
+int		argv_check(int argc, char **argv, int argu[5]);
+int		ft_atoi(char *str);
+int		init_vars(t_info *info, t_philo **philo, pthread_t **pthread);
+
+// philo.c
 void	eating(t_philo *philo, t_info *info);
 void	sleeping(t_philo *philo, t_info *info);
 void	thinking(t_philo *philo, t_info *info);
 void	*routine(void *param);
 
-// utils
+// handle_fork.c
+void	getting_fork(t_philo *philo, t_info *info, int *fst, int *snd);
+void	lock_fork(t_info *info, t_fork *target_fork);
+void	unlock_fork(t_fork *target_fork);
+
+// utils.c
 int		get_rest_time(t_philo *philo);
 int		ft_usleep(t_philo *philo, int wait);
 int		diff(t_time old, t_time new);
 int		get_cur_time(t_philo *philo);
 void	free_arr(t_fork *fork, t_philo *philo, pthread_t *pthread);
-
-// before routine
-int		argv_check(int argc, char **argv, int argu[5]);
-int		ft_atoi(char *str);
-int		init_vars(t_info *info, t_philo **philo, pthread_t **pthread);
 
 #endif

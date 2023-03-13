@@ -6,7 +6,7 @@
 /*   By: hyoh <hyoh@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/24 09:03:32 by hyoh              #+#    #+#             */
-/*   Updated: 2023/02/25 12:20:21 by hyoh             ###   ########.fr       */
+/*   Updated: 2023/03/13 13:54:18 by hyoh             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,8 @@
 
 int	get_cur_time(t_info *info)
 {
-	//now-start
 	t_time		now;
-	int			now_time;
+	long long	now_time;
 
 	gettimeofday(&now, NULL);
 	now_time = now.tv_sec * 1000 + now.tv_usec / 1000;

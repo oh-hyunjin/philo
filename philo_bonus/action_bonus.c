@@ -6,7 +6,7 @@
 /*   By: hyoh <hyoh@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/25 12:13:03 by hyoh              #+#    #+#             */
-/*   Updated: 2023/02/25 12:17:59 by hyoh             ###   ########.fr       */
+/*   Updated: 2023/03/13 14:02:00 by hyoh             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ void	taking_fork(t_info *info, t_philo *philo)
 {
 	sem_wait(info->fork);
 	sem_wait(info->fork);
+	printf("	[%d] waited forks\n", philo->id);
 	sem_wait(info->print);
 	printf("%d [%d] has taken forks\n", get_cur_time(info), philo->id);
 	sem_post(info->print);
@@ -33,6 +34,7 @@ void	eating(t_info *info, t_philo *philo)
 	ft_usleep(philo, info->argu[TIME_TO_EAT]);
 	sem_post(info->fork);
 	sem_post(info->fork);
+	printf("	[%d] posted forks\n", philo->id);
 }
 
 void	sleeping(t_info *info, t_philo *philo)

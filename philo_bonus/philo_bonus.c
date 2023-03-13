@@ -6,13 +6,13 @@
 /*   By: hyoh <hyoh@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/25 12:14:37 by hyoh              #+#    #+#             */
-/*   Updated: 2023/03/12 18:26:17 by hyoh             ###   ########.fr       */
+/*   Updated: 2023/03/13 15:58:24 by hyoh             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_bonus.h"
 
-void	*death_check_thr(void *param)
+void	*death_check_in_action(void *param)
 {
 	t_philo	*philo;
 
@@ -30,7 +30,8 @@ void	action(t_info *info, t_philo *philo)
 	pthread_t tmp;
 
 	philo->time = get_cur_time(info);
-	pthread_create(&tmp, NULL, death_check_thr, philo);
+	// printf("%lld [%d] is in action\n", philo->time, philo->id);
+	pthread_create(&tmp, NULL, death_check_in_action, philo);
 	while (1)
 	{
 		taking_fork(info, philo);
@@ -46,14 +47,19 @@ void	action(t_info *info, t_philo *philo)
 
 void	*full_monitoring_thr(void *param)
 {
-	t_info *info;
-	int	i;
+	t_info	*info;
+	int		i;
 
 	info = (t_info *)param;
 	i = 0;
 	printf("full monitoring start : %d\n", info->argu[NUM_OF_PHILOS]);
-	while (++i <= info->argu[NUM_OF_PHILOS])
+	while (info->status == ALIVE && ++i <= info->argu[NUM_OF_PHILOS])
 		sem_wait(info->full);
+	if (info->status != ALIVE)
+	{
+		printf("exit f_m_t\n");
+		return (0);
+	}
 	info->status = FULL;
 	sem_wait(info->print);
 	printf("full !!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
@@ -72,6 +78,7 @@ void	*dead_monitoring_thr(void *param)
 		info->status = DEAD;
 		printf("!!!!!!!!!!!somone died!!!!!!!!!!!!!!\n");
 	}
+	printf("exit d_m_t\n");
 	return (0);
 }
 
@@ -83,11 +90,41 @@ void	status_monitoring(t_info *info)
 	info->status = ALIVE;
 	pthread_create(&full_thr, NULL, full_monitoring_thr, info);
 	pthread_create(&dead_thr, NULL, dead_monitoring_thr, info);
-
 	while (info->status == ALIVE)
 		continue ;
-	pthread_detach(full_thr);
-	pthread_detach(dead_thr);
+	printf("\nwill detach full_thr, dead_thr\n");
+	if (pthread_detach(full_thr) == 0)
+		printf("full detach success~~~~~~\n");
+	else
+		printf("full detach fail!!!!!!!!!!!!\n");
+	if (pthread_detach(dead_thr) == 0)
+		printf("dead detach success~~~~~~\n");
+	else
+		printf("dead detach fail!!!!!!!!!!!!\n");
+}
+
+void	kill_all(t_info *info, pid_t *pids)
+{
+	int i;
+
+	printf("\nkill all start\n");
+	i = 0;
+	while (++i <= info->argu[NUM_OF_PHILOS])
+	{
+		if (kill(pids[i], SIGKILL) == -1)
+			printf("kill [%d] fail!!!!!!!!!!!!!! : %s\n", i, strerror(errno));
+		else
+			printf("kill [%d] success~~~~\n", i);
+	}
+	printf("kill clear\n\n");
+	// sem close -> unlink
+	printf("sem fork close res : %d\n", sem_close(info->fork));
+	printf("sem print close res : %d\n", sem_close(info->print));
+	printf("sem full close res : %d\n\n", sem_close(info->full));
+
+	printf("sem fork unlink res : %d\n", sem_unlink("fork"));
+	printf("sem print unlink res : %d\n", sem_unlink("print"));
+	printf("sem full unlink res : %d\n", sem_unlink("full"));
 }
 
 int	main(int argc, char **argv)
@@ -102,17 +139,10 @@ int	main(int argc, char **argv)
 		printf("error\n");
 		return (0);
 	}
-	printf("init clear\n");
-
-	status_monitoring(&info);	
-
-	int i = 0;
-	// kill(0, SIGKILL);
-	while (++i <= info.argu[NUM_OF_PHILOS])
-	{
-		kill(pids[i], SIGKILL);
-		// printf("killed [%d]\n", i);
-	}
+	status_monitoring(&info);
+	kill_all(&info, pids);
+	printf("--- fin ---\n");
+	// system("leaks philo_bonus");
 }
 
-//sem : every fork, full_flag
+// pthread detach가 정확히 어떻게 작동하는지...

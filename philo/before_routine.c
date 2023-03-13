@@ -23,9 +23,7 @@ int	init_vars(t_info *info, t_philo **philo, pthread_t **pthread)
 	*pthread = (pthread_t *)malloc(sizeof(pthread_t) * (philos_num + 1));
 	if (!info->fork || !philo || !pthread)
 	{
-		free(fork);
-		free(*philo);
-		free(*pthread);
+		(free(fork), free(*philo), free(*pthread));
 		return (-1);
 	}
 	pthread_mutex_init(&(info->print), NULL);
